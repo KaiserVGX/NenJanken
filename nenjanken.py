@@ -22,6 +22,63 @@ placar_jogador = 0
 placar_pc = 0
 rodada = 0
 
+# Cadastro dos golpes e categorias de Nen
+GOLPES = {
+    "pedra": {
+        "emoji": "🪨",
+        "categoria": "Reforço",
+        "descricao": "Soco concentrado de força bruta"
+    },
+    "tesoura": {
+        "emoji": "✂️",
+        "categoria": "Transformação",
+        "descricao": "Lâmina de aura cortante"
+    },
+    "papel": {
+        "emoji": "📄",
+        "categoria": "Emissão",
+        "descricao": "Disparo de esfera de aura"
+    },
+    "escudo": {
+        "emoji": "🛡️",
+        "categoria": "Conjuração",
+        "descricao": "Materialização de uma barreira"
+    },
+    "garra": {
+        "emoji": "🐾",
+        "categoria": "Manipulação",
+        "descricao": "Controle através de aura"
+    },
+    "estalo": {
+        "emoji": "👆",
+        "categoria": "Especialização",
+        "descricao": "Ativação de uma regra especial"
+    }
+}
+
+# Lista de opcoes do jogo
+opcoes = list(GOLPES.keys())
+
+# Regras de vitoria
+VENCE = {
+    "pedra": ["tesoura", "estalo"],
+    "tesoura": ["papel", "escudo"],
+    "papel": ["pedra", "garra"],
+    "escudo": ["pedra", "estalo"],
+    "garra": ["tesoura", "escudo"],
+    "estalo": ["papel", "garra"]
+}
+
+# Golpes que causam choque de aura
+NEUTRO = {
+    "pedra": "garra",
+    "tesoura": "estalo",
+    "papel": "escudo",
+    "escudo": "papel",
+    "garra": "pedra",
+    "estalo": "tesoura"
+}
+
 # Criacao da janela principal
 janela = tk.Tk()
 janela.title("NenJanken - Duelo de Aura")
@@ -89,6 +146,16 @@ lbl_resultado = tk.Label(
     fg=COR_TEXTO
 )
 lbl_resultado.pack(pady=25)
+
+# Apresentacao das categorias cadastradas
+lbl_categorias = tk.Label(
+    janela,
+    text="Categorias de Nen cadastradas: " + str(len(GOLPES)),
+    font=("Arial", 13, "bold"),
+    bg=COR_FUNDO,
+    fg=COR_ROXO
+)
+lbl_categorias.pack(pady=10)
 
 # Inicia a interface
 janela.mainloop()
