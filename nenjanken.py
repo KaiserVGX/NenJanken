@@ -16,6 +16,9 @@ COR_CARD = "#313244"
 COR_TEXTO = "#e0e0e0"
 COR_ROXO = "#7c3aed"
 COR_AMARELO = "#eab308"
+COR_AZUL = "#3b82f6"
+COR_VERDE = "#22c55e"
+COR_VERMELHO = "#ef4444"
 
 # Variaveis do jogo
 placar_jogador = 0
@@ -80,41 +83,90 @@ NEUTRO = {
 }
 
 
-# Funcao para mostrar o golpe escolhido
-def mostrar_escolha(golpe):
-    emoji = GOLPES[golpe]["emoji"]
-    categoria = GOLPES[golpe]["categoria"]
+# Funcao para identificar o resultado da rodada
+def verificar_resultado(jogador, computador):
+    if jogador == computador:
+        return "EMPATE!", COR_AMARELO, "empate"
 
-    lbl_resultado.config(
-        text="Voce escolheu: " + emoji + " " + golpe.capitalize()
-        + "\nCategoria: " + categoria,
-        fg=COR_AMARELO
+    if NEUTRO[jogador] == computador:
+        return "CHOQUE DE AURA!", COR_AMARELO, "empate"
+
+    if computador in VENCE[jogador]:
+        return "VOCE VENCEU!", COR_VERDE, "vitoria"
+
+    return "PC VENCEU!", COR_VERMELHO, "derrota"
+
+
+# Funcao para executar uma partida
+def jogar(escolha_jogador):
+    global placar_jogador, placar_pc, rodada
+
+    escolha_pc = random.choice(opcoes)
+    rodada += 1
+
+    resultado, cor, tipo = verificar_resultado(
+        escolha_jogador, escolha_pc
+    )
+
+    # Atualiza o placar
+    if tipo == "vitoria":
+        placar_jogador += 1
+    elif tipo == "derrota":
+        placar_pc += 1
+
+    # Atualiza as informacoes na tela
+    lbl_resultado.config(text=resultado, fg=cor)
+
+    lbl_placar.config(
+        text=str(placar_jogador) + "  x  " + str(placar_pc)
+    )
+
+    lbl_rodada.config(text="Rodada: " + str(rodada))
+
+    # Mostra a escolha do jogador
+    info_jogador = GOLPES[escolha_jogador]
+
+    lbl_jogador.config(
+        text="Sua escolha: "
+        + info_jogador["emoji"] + " "
+        + escolha_jogador.capitalize()
+        + " - " + info_jogador["categoria"]
+    )
+
+    # Mostra a escolha do computador
+    info_pc = GOLPES[escolha_pc]
+
+    lbl_pc.config(
+        text="Computador: "
+        + info_pc["emoji"] + " "
+        + escolha_pc.capitalize()
+        + " - " + info_pc["categoria"]
     )
 
 
 # Funcoes dos botoes
 def jogar_pedra():
-    mostrar_escolha("pedra")
+    jogar("pedra")
 
 
 def jogar_tesoura():
-    mostrar_escolha("tesoura")
+    jogar("tesoura")
 
 
 def jogar_papel():
-    mostrar_escolha("papel")
+    jogar("papel")
 
 
 def jogar_escudo():
-    mostrar_escolha("escudo")
+    jogar("escudo")
 
 
 def jogar_garra():
-    mostrar_escolha("garra")
+    jogar("garra")
 
 
 def jogar_estalo():
-    mostrar_escolha("estalo")
+    jogar("estalo")
 
 
 # Criacao da janela principal
@@ -152,7 +204,7 @@ lbl_jogadores = tk.Label(
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_jogadores.pack(pady=20)
+lbl_jogadores.pack(pady=15)
 
 # Placar inicial
 lbl_placar = tk.Label(
@@ -163,7 +215,7 @@ lbl_placar = tk.Label(
     fg=COR_AMARELO,
     width=15
 )
-lbl_placar.pack(pady=10)
+lbl_placar.pack(pady=8)
 
 # Contador de rodadas
 lbl_rodada = tk.Label(
@@ -173,9 +225,9 @@ lbl_rodada = tk.Label(
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_rodada.pack(pady=10)
+lbl_rodada.pack(pady=5)
 
-# Mensagem de resultado e escolha
+# Mensagem de resultado
 lbl_resultado = tk.Label(
     janela,
     text="Escolha seu golpe para comecar!",
@@ -183,7 +235,26 @@ lbl_resultado = tk.Label(
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_resultado.pack(pady=20)
+lbl_resultado.pack(pady=12)
+
+# Escolhas dos jogadores
+lbl_jogador = tk.Label(
+    janela,
+    text="Sua escolha: -",
+    font=("Arial", 11),
+    bg=COR_FUNDO,
+    fg=COR_AZUL
+)
+lbl_jogador.pack(pady=4)
+
+lbl_pc = tk.Label(
+    janela,
+    text="Computador: -",
+    font=("Arial", 11),
+    bg=COR_FUNDO,
+    fg=COR_VERMELHO
+)
+lbl_pc.pack(pady=4)
 
 # Titulo da area de escolha
 lbl_escolha = tk.Label(
@@ -195,7 +266,7 @@ lbl_escolha = tk.Label(
 )
 lbl_escolha.pack(pady=10)
 
-# Area onde ficam os botoes
+# Area dos botoes
 frame_golpes = tk.Frame(janela, bg=COR_FUNDO)
 frame_golpes.pack(pady=10)
 
