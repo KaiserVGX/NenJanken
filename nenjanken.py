@@ -24,6 +24,7 @@ COR_VERMELHO = "#ef4444"
 placar_jogador = 0
 placar_pc = 0
 rodada = 0
+historico = []
 
 # Cadastro dos golpes e categorias de Nen
 GOLPES = {
@@ -97,6 +98,19 @@ def verificar_resultado(jogador, computador):
     return "PC VENCEU!", COR_VERMELHO, "derrota"
 
 
+# Atualiza o historico na tela
+def atualizar_historico():
+    texto = ""
+
+    for item in historico:
+        texto = texto + item + "\n"
+
+    if texto == "":
+        texto = "Nenhuma rodada ainda"
+
+    lbl_historico.config(text=texto)
+
+
 # Funcao para executar uma partida
 def jogar(escolha_jogador):
     global placar_jogador, placar_pc, rodada
@@ -143,6 +157,22 @@ def jogar(escolha_jogador):
         + " - " + info_pc["categoria"]
     )
 
+    # Registra a rodada no historico
+    registro = (
+        "Rodada " + str(rodada) + ": "
+        + info_jogador["emoji"] + " vs "
+        + info_pc["emoji"] + " - "
+        + resultado
+    )
+
+    historico.append(registro)
+
+    # Mantem apenas as seis rodadas mais recentes
+    if len(historico) > 6:
+        historico.pop(0)
+
+    atualizar_historico()
+
 
 # Funcoes dos botoes
 def jogar_pedra():
@@ -184,7 +214,7 @@ lbl_titulo = tk.Label(
     bg=COR_FUNDO,
     fg=COR_ROXO
 )
-lbl_titulo.pack(pady=(25, 5))
+lbl_titulo.pack(pady=(15, 5))
 
 # Subtitulo
 lbl_subtitulo = tk.Label(
@@ -204,7 +234,7 @@ lbl_jogadores = tk.Label(
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_jogadores.pack(pady=15)
+lbl_jogadores.pack(pady=10)
 
 # Placar inicial
 lbl_placar = tk.Label(
@@ -215,7 +245,7 @@ lbl_placar = tk.Label(
     fg=COR_AMARELO,
     width=15
 )
-lbl_placar.pack(pady=8)
+lbl_placar.pack(pady=5)
 
 # Contador de rodadas
 lbl_rodada = tk.Label(
@@ -235,7 +265,7 @@ lbl_resultado = tk.Label(
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_resultado.pack(pady=12)
+lbl_resultado.pack(pady=8)
 
 # Escolhas dos jogadores
 lbl_jogador = tk.Label(
@@ -245,7 +275,7 @@ lbl_jogador = tk.Label(
     bg=COR_FUNDO,
     fg=COR_AZUL
 )
-lbl_jogador.pack(pady=4)
+lbl_jogador.pack(pady=3)
 
 lbl_pc = tk.Label(
     janela,
@@ -254,7 +284,7 @@ lbl_pc = tk.Label(
     bg=COR_FUNDO,
     fg=COR_VERMELHO
 )
-lbl_pc.pack(pady=4)
+lbl_pc.pack(pady=3)
 
 # Titulo da area de escolha
 lbl_escolha = tk.Label(
@@ -264,11 +294,11 @@ lbl_escolha = tk.Label(
     bg=COR_FUNDO,
     fg=COR_ROXO
 )
-lbl_escolha.pack(pady=10)
+lbl_escolha.pack(pady=8)
 
 # Area dos botoes
 frame_golpes = tk.Frame(janela, bg=COR_FUNDO)
-frame_golpes.pack(pady=10)
+frame_golpes.pack(pady=5)
 
 # Botao Pedra
 btn_pedra = tk.Button(
@@ -281,7 +311,7 @@ btn_pedra = tk.Button(
     height=3,
     command=jogar_pedra
 )
-btn_pedra.grid(row=0, column=0, padx=8, pady=8)
+btn_pedra.grid(row=0, column=0, padx=8, pady=5)
 
 # Botao Tesoura
 btn_tesoura = tk.Button(
@@ -294,7 +324,7 @@ btn_tesoura = tk.Button(
     height=3,
     command=jogar_tesoura
 )
-btn_tesoura.grid(row=0, column=1, padx=8, pady=8)
+btn_tesoura.grid(row=0, column=1, padx=8, pady=5)
 
 # Botao Papel
 btn_papel = tk.Button(
@@ -307,7 +337,7 @@ btn_papel = tk.Button(
     height=3,
     command=jogar_papel
 )
-btn_papel.grid(row=1, column=0, padx=8, pady=8)
+btn_papel.grid(row=1, column=0, padx=8, pady=5)
 
 # Botao Escudo
 btn_escudo = tk.Button(
@@ -320,7 +350,7 @@ btn_escudo = tk.Button(
     height=3,
     command=jogar_escudo
 )
-btn_escudo.grid(row=1, column=1, padx=8, pady=8)
+btn_escudo.grid(row=1, column=1, padx=8, pady=5)
 
 # Botao Garra
 btn_garra = tk.Button(
@@ -333,7 +363,7 @@ btn_garra = tk.Button(
     height=3,
     command=jogar_garra
 )
-btn_garra.grid(row=2, column=0, padx=8, pady=8)
+btn_garra.grid(row=2, column=0, padx=8, pady=5)
 
 # Botao Estalo
 btn_estalo = tk.Button(
@@ -346,7 +376,30 @@ btn_estalo = tk.Button(
     height=3,
     command=jogar_estalo
 )
-btn_estalo.grid(row=2, column=1, padx=8, pady=8)
+btn_estalo.grid(row=2, column=1, padx=8, pady=5)
+
+# Area do historico
+lbl_titulo_historico = tk.Label(
+    janela,
+    text="HISTORICO DE PARTIDAS",
+    font=("Arial", 13, "bold"),
+    bg=COR_FUNDO,
+    fg=COR_ROXO
+)
+lbl_titulo_historico.pack(pady=(8, 3))
+
+lbl_historico = tk.Label(
+    janela,
+    text="Nenhuma rodada ainda",
+    font=("Arial", 10),
+    bg=COR_CARD,
+    fg=COR_TEXTO,
+    width=65,
+    height=6,
+    justify="left",
+    anchor="nw"
+)
+lbl_historico.pack(pady=5)
 
 # Inicia a interface
 janela.mainloop()
