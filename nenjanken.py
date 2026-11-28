@@ -1,32 +1,24 @@
 """
 NenJanken - Duelo de Aura
-Jogo inspirado nas categorias de Nen de Hunter x Hunter.
-
-Integrantes: Lucas Linhares e Rafael Maia
-Disciplina: Logica, Algoritmos e Programacao
+Dupla: Lucas Linhares e Rafael Maia
+Disciplina: Lógica, Algoritmos e Programação
 """
 
 import tkinter as tk
 from tkinter import messagebox
 import random
 
-# Cores principais do jogo
+# Cores do jogo
 COR_FUNDO = "#1e1e2e"
-COR_CARD = "#313244"
+COR_CARD = "#292943"
 COR_TEXTO = "#e0e0e0"
 COR_ROXO = "#7c3aed"
-COR_AMARELO = "#eab308"
 COR_AZUL = "#3b82f6"
 COR_VERDE = "#22c55e"
 COR_VERMELHO = "#ef4444"
+COR_AMARELO = "#eab308"
 
-# Variaveis do jogo
-placar_jogador = 0
-placar_pc = 0
-rodada = 0
-historico = []
-
-# Cadastro dos golpes e categorias de Nen
+# Categorias e golpes de Nen
 GOLPES = {
     "pedra": {
         "emoji": "🪨",
@@ -60,10 +52,9 @@ GOLPES = {
     }
 }
 
-# Lista de opcoes do jogo
 opcoes = list(GOLPES.keys())
 
-# Regras de vitoria
+# Regras de vitória
 VENCE = {
     "pedra": ["tesoura", "estalo"],
     "tesoura": ["papel", "escudo"],
@@ -73,32 +64,29 @@ VENCE = {
     "estalo": ["papel", "garra"]
 }
 
-# Golpes que causam choque de aura
+# Combinações neutras
 NEUTRO = {
     "pedra": "garra",
-    "tesoura": "estalo",
-    "papel": "escudo",
-    "escudo": "papel",
     "garra": "pedra",
-    "estalo": "tesoura"
+    "tesoura": "estalo",
+    "estalo": "tesoura",
+    "papel": "escudo",
+    "escudo": "papel"
 }
 
-
-# Funcao para identificar o resultado da rodada
-def verificar_resultado(jogador, computador):
-    if jogador == computador:
-        return "EMPATE!", COR_AMARELO, "empate"
-
-    if NEUTRO[jogador] == computador:
-        return "CHOQUE DE AURA!", COR_AMARELO, "empate"
-
-    if computador in VENCE[jogador]:
-        return "VOCE VENCEU!", COR_VERDE, "vitoria"
-
-    return "PC VENCEU!", COR_VERMELHO, "derrota"
+# Variáveis do jogo
+placar_jogador = 0
+placar_pc = 0
+rodada = 0
+historico = []
 
 
-# Atualiza o historico na tela
+# Mostra o emoji do golpe
+def mostrar_emoji(golpe):
+    return GOLPES[golpe]["emoji"]
+
+
+# Atualiza o histórico
 def atualizar_historico():
     texto = ""
 
@@ -111,70 +99,74 @@ def atualizar_historico():
     lbl_historico.config(text=texto)
 
 
-# Funcao para executar uma partida
+# Verifica o resultado da partida
+def verificar_resultado(jogador, computador):
+    if jogador == computador:
+        return "EMPATE!", COR_AMARELO, "empate"
+
+    elif NEUTRO[jogador] == computador:
+        return "CHOQUE DE AURA!", COR_AMARELO, "empate"
+
+    elif computador in VENCE[jogador]:
+        return "VOCE VENCEU!", COR_VERDE, "vitoria"
+
+    else:
+        return "PC VENCEU!", COR_VERMELHO, "derrota"
+
+
+# Realiza uma rodada
 def jogar(escolha_jogador):
     global placar_jogador, placar_pc, rodada
 
     escolha_pc = random.choice(opcoes)
-    rodada += 1
+    rodada = rodada + 1
+
+    lbl_jogador.config(
+        text="Você: " + mostrar_emoji(escolha_jogador)
+        + " " + GOLPES[escolha_jogador]["categoria"]
+    )
+
+    lbl_pc.config(
+        text="PC: " + mostrar_emoji(escolha_pc)
+        + " " + GOLPES[escolha_pc]["categoria"]
+    )
 
     resultado, cor, tipo = verificar_resultado(
         escolha_jogador, escolha_pc
     )
 
-    # Atualiza o placar
     if tipo == "vitoria":
-        placar_jogador += 1
-    elif tipo == "derrota":
-        placar_pc += 1
+        placar_jogador = placar_jogador + 1
 
-    # Atualiza as informacoes na tela
+    elif tipo == "derrota":
+        placar_pc = placar_pc + 1
+
     lbl_resultado.config(text=resultado, fg=cor)
 
     lbl_placar.config(
-        text=str(placar_jogador) + "  x  " + str(placar_pc)
+        text="Você: " + str(placar_jogador)
+        + "   |   PC: " + str(placar_pc)
     )
 
     lbl_rodada.config(text="Rodada: " + str(rodada))
 
-    # Mostra a escolha do jogador
-    info_jogador = GOLPES[escolha_jogador]
-
-    lbl_jogador.config(
-        text="Sua escolha: "
-        + info_jogador["emoji"] + " "
-        + escolha_jogador.capitalize()
-        + " - " + info_jogador["categoria"]
-    )
-
-    # Mostra a escolha do computador
-    info_pc = GOLPES[escolha_pc]
-
-    lbl_pc.config(
-        text="Computador: "
-        + info_pc["emoji"] + " "
-        + escolha_pc.capitalize()
-        + " - " + info_pc["categoria"]
-    )
-
-    # Registra a rodada no historico
-    registro = (
-        "Rodada " + str(rodada) + ": "
-        + info_jogador["emoji"] + " vs "
-        + info_pc["emoji"] + " - "
+    # Registra a partida no histórico
+    linha = (
+        "R" + str(rodada) + ": "
+        + mostrar_emoji(escolha_jogador) + " vs "
+        + mostrar_emoji(escolha_pc) + " - "
         + resultado
     )
 
-    historico.append(registro)
+    historico.append(linha)
 
-    # Mantem apenas as seis rodadas mais recentes
     if len(historico) > 6:
         historico.pop(0)
 
     atualizar_historico()
 
 
-# Funcoes dos botoes
+# Funções dos botões de escolha
 def jogar_pedra():
     jogar("pedra")
 
@@ -199,55 +191,91 @@ def jogar_estalo():
     jogar("estalo")
 
 
-# Criacao da janela principal
+# Reinicia os dados da partida
+def reiniciar():
+    global placar_jogador, placar_pc, rodada, historico
+
+    resposta = messagebox.askyesno(
+        "Reiniciar jogo",
+        "Deseja realmente reiniciar a partida?"
+    )
+
+    if resposta:
+        placar_jogador = 0
+        placar_pc = 0
+        rodada = 0
+        historico = []
+
+        lbl_placar.config(text="Você: 0   |   PC: 0")
+        lbl_rodada.config(text="Rodada: 0")
+        lbl_jogador.config(text="Você: —")
+        lbl_pc.config(text="PC: —")
+        lbl_resultado.config(
+            text="Faça sua escolha!",
+            fg=COR_TEXTO
+        )
+
+        atualizar_historico()
+
+
+# Confirma antes de fechar o jogo
+def sair():
+    resposta = messagebox.askyesno(
+        "Sair do NenJanken",
+        "Deseja realmente sair do jogo?"
+    )
+
+    if resposta:
+        janela.destroy()
+
+
+# Criação da janela
 janela = tk.Tk()
 janela.title("NenJanken - Duelo de Aura")
 janela.geometry("760x850")
 janela.configure(bg=COR_FUNDO)
 janela.resizable(False, False)
 
-# Titulo do jogo
+# Título
 lbl_titulo = tk.Label(
     janela,
     text="NENJANKEN",
-    font=("Arial", 30, "bold"),
+    font=("Arial", 28, "bold"),
     bg=COR_FUNDO,
     fg=COR_ROXO
 )
-lbl_titulo.pack(pady=(15, 5))
+lbl_titulo.pack(pady=(15, 2))
 
-# Subtitulo
 lbl_subtitulo = tk.Label(
     janela,
-    text="DUELO DE AURA - Sistema de Combate Nen",
-    font=("Arial", 12),
-    bg=COR_FUNDO,
-    fg=COR_TEXTO
-)
-lbl_subtitulo.pack(pady=5)
-
-# Identificacao dos jogadores
-lbl_jogadores = tk.Label(
-    janela,
-    text="JOGADOR  VS  COMPUTADOR",
+    text="DUELO DE AURA",
     font=("Arial", 14, "bold"),
     bg=COR_FUNDO,
     fg=COR_TEXTO
 )
-lbl_jogadores.pack(pady=10)
+lbl_subtitulo.pack()
 
-# Placar inicial
+lbl_nomes = tk.Label(
+    janela,
+    text="Lucas Linhares  •  Rafael Maia",
+    font=("Arial", 10),
+    bg=COR_FUNDO,
+    fg=COR_TEXTO
+)
+lbl_nomes.pack(pady=(2, 10))
+
+# Placar
 lbl_placar = tk.Label(
     janela,
-    text="0  x  0",
-    font=("Arial", 28, "bold"),
+    text="Você: 0   |   PC: 0",
+    font=("Arial", 17, "bold"),
     bg=COR_CARD,
-    fg=COR_AMARELO,
-    width=15
+    fg=COR_TEXTO,
+    width=30,
+    pady=8
 )
 lbl_placar.pack(pady=5)
 
-# Contador de rodadas
 lbl_rodada = tk.Label(
     janela,
     text="Rodada: 0",
@@ -257,136 +285,87 @@ lbl_rodada = tk.Label(
 )
 lbl_rodada.pack(pady=5)
 
-# Mensagem de resultado
-lbl_resultado = tk.Label(
-    janela,
-    text="Escolha seu golpe para comecar!",
-    font=("Arial", 14, "bold"),
-    bg=COR_FUNDO,
-    fg=COR_TEXTO
-)
-lbl_resultado.pack(pady=8)
-
-# Escolhas dos jogadores
+# Escolhas
 lbl_jogador = tk.Label(
     janela,
-    text="Sua escolha: -",
-    font=("Arial", 11),
+    text="Você: —",
+    font=("Arial", 12),
     bg=COR_FUNDO,
-    fg=COR_AZUL
+    fg=COR_TEXTO
 )
 lbl_jogador.pack(pady=3)
 
 lbl_pc = tk.Label(
     janela,
-    text="Computador: -",
-    font=("Arial", 11),
+    text="PC: —",
+    font=("Arial", 12),
     bg=COR_FUNDO,
-    fg=COR_VERMELHO
+    fg=COR_TEXTO
 )
 lbl_pc.pack(pady=3)
 
-# Titulo da area de escolha
+lbl_resultado = tk.Label(
+    janela,
+    text="Faça sua escolha!",
+    font=("Arial", 18, "bold"),
+    bg=COR_FUNDO,
+    fg=COR_TEXTO
+)
+lbl_resultado.pack(pady=8)
+
+# Área dos golpes
 lbl_escolha = tk.Label(
     janela,
     text="ESCOLHA SUA CATEGORIA DE NEN",
-    font=("Arial", 15, "bold"),
-    bg=COR_FUNDO,
-    fg=COR_ROXO
-)
-lbl_escolha.pack(pady=8)
-
-# Area dos botoes
-frame_golpes = tk.Frame(janela, bg=COR_FUNDO)
-frame_golpes.pack(pady=5)
-
-# Botao Pedra
-btn_pedra = tk.Button(
-    frame_golpes,
-    text="🪨 Pedra\nReforço",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_pedra
-)
-btn_pedra.grid(row=0, column=0, padx=8, pady=5)
-
-# Botao Tesoura
-btn_tesoura = tk.Button(
-    frame_golpes,
-    text="✂️ Tesoura\nTransformação",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_tesoura
-)
-btn_tesoura.grid(row=0, column=1, padx=8, pady=5)
-
-# Botao Papel
-btn_papel = tk.Button(
-    frame_golpes,
-    text="📄 Papel\nEmissão",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_papel
-)
-btn_papel.grid(row=1, column=0, padx=8, pady=5)
-
-# Botao Escudo
-btn_escudo = tk.Button(
-    frame_golpes,
-    text="🛡️ Escudo\nConjuração",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_escudo
-)
-btn_escudo.grid(row=1, column=1, padx=8, pady=5)
-
-# Botao Garra
-btn_garra = tk.Button(
-    frame_golpes,
-    text="🐾 Garra\nManipulação",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_garra
-)
-btn_garra.grid(row=2, column=0, padx=8, pady=5)
-
-# Botao Estalo
-btn_estalo = tk.Button(
-    frame_golpes,
-    text="👆 Estalo\nEspecialização",
-    font=("Arial", 11, "bold"),
-    bg=COR_CARD,
-    fg=COR_TEXTO,
-    width=20,
-    height=3,
-    command=jogar_estalo
-)
-btn_estalo.grid(row=2, column=1, padx=8, pady=5)
-
-# Area do historico
-lbl_titulo_historico = tk.Label(
-    janela,
-    text="HISTORICO DE PARTIDAS",
     font=("Arial", 13, "bold"),
     bg=COR_FUNDO,
     fg=COR_ROXO
 )
-lbl_titulo_historico.pack(pady=(8, 3))
+lbl_escolha.pack(pady=5)
+
+# Botões de escolha
+frame_botoes = tk.Frame(janela, bg=COR_FUNDO)
+frame_botoes.pack(pady=5)
+
+botoes = [
+    ("🪨 Pedra\nReforço", jogar_pedra),
+    ("✂️ Tesoura\nTransformação", jogar_tesoura),
+    ("📄 Papel\nEmissão", jogar_papel),
+    ("🛡️ Escudo\nConjuração", jogar_escudo),
+    ("🐾 Garra\nManipulação", jogar_garra),
+    ("👆 Estalo\nEspecialização", jogar_estalo)
+]
+
+for i, item in enumerate(botoes):
+    botao = tk.Button(
+        frame_botoes,
+        text=item[0],
+        command=item[1],
+        font=("Arial", 10, "bold"),
+        bg=COR_CARD,
+        fg=COR_TEXTO,
+        activebackground=COR_ROXO,
+        activeforeground="white",
+        width=17,
+        height=2
+    )
+
+    botao.grid(
+        row=i // 3,
+        column=i % 3,
+        padx=5,
+        pady=5
+    )
+
+# Histórico
+lbl_titulo_historico = tk.Label(
+    janela,
+    text="HISTÓRICO DE PARTIDAS",
+    font=("Arial", 12, "bold"),
+    bg=COR_FUNDO,
+    fg=COR_ROXO
+)
+lbl_titulo_historico.pack(pady=(10, 3))
 
 lbl_historico = tk.Label(
     janela,
@@ -397,9 +376,36 @@ lbl_historico = tk.Label(
     width=65,
     height=6,
     justify="left",
-    anchor="nw"
+    anchor="w"
 )
-lbl_historico.pack(pady=5)
+lbl_historico.pack(pady=3)
 
-# Inicia a interface
+# Botões de controle
+frame_controles = tk.Frame(janela, bg=COR_FUNDO)
+frame_controles.pack(pady=12)
+
+btn_reiniciar = tk.Button(
+    frame_controles,
+    text="REINICIAR",
+    command=reiniciar,
+    font=("Arial", 10, "bold"),
+    bg=COR_AZUL,
+    fg="white",
+    width=16,
+    height=2
+)
+btn_reiniciar.grid(row=0, column=0, padx=8)
+
+btn_sair = tk.Button(
+    frame_controles,
+    text="SAIR",
+    command=sair,
+    font=("Arial", 10, "bold"),
+    bg=COR_VERMELHO,
+    fg="white",
+    width=16,
+    height=2
+)
+btn_sair.grid(row=0, column=1, padx=8)
+
 janela.mainloop()
